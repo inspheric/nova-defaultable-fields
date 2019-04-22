@@ -5,7 +5,7 @@ namespace Inspheric\NovaDefaultable;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Nova\Fields\Field;
 
-class DefaulableServiceProvider extends ServiceProvider
+class DefaultableServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.

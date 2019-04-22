@@ -3,10 +3,13 @@
 namespace Inspheric\NovaDefaultable;
 
 use BadMethodCallException;
+use InvalidArgumentException;
 
 use Illuminate\Support\Facades\Cache;
 
 use Illuminate\Support\Traits\Macroable;
+
+use Laravel\Nova\Contracts\ListableField;
 
 use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Fields\MorphTo;
@@ -14,10 +17,16 @@ use Laravel\Nova\Fields\BelongsTo;
 
 use Laravel\Nova\Http\Requests\NovaRequest;
 
+use Laravel\Nova\Resource;
+
 class DefaultableField
 {
     use Macroable;
 
+    /**
+     * Methods to handle various field types
+     * @var array
+     */
     protected static $fieldMacros = [
         MorphTo::class => 'handleMorphTo',
         BelongsTo::class => 'handleBelongsTo',
@@ -38,7 +47,7 @@ class DefaultableField
     }
 
     /**
-     * Set a default field value on create
+     * Set a default field value on a create request
      *
      * @param  \Laravel\Nova\Fields\Field $field
      * @param  mixed|array|callable $value
@@ -47,18 +56,21 @@ class DefaultableField
      */
     public static function default(Field $field, $value, callable $callback = null)
     {
+        if ($field instanceof ListableField) {
+            $class = get_class($field);
+            throw new InvalidArgumentException("Listable field type `$class` does not support defaultable values");
+        }
+
         $request = app(NovaRequest::class);
 
         if ($request->editMode == 'create') {
 
-            $key = static::resourceAttribute($request, $field);
-
             if (is_callable($value)) {
-                $value = call_user_func($value, $request->resource());
+                $value = call_user_func($value, $request);
             }
 
             if (is_callable($callback)) {
-                $value = call_user_func($callback, $value, $request->resource());
+                $value = call_user_func($callback, $value, $request);
             }
 
             foreach (static::$fieldMacros as $class => $macro) {
@@ -73,7 +85,7 @@ class DefaultableField
                         return static::__callStatic($macro, [$field, $value]);
                     }
                     else {
-                        throw new BadMethodCallException("Invalid default field behaviour handler for [$class]");
+                        throw new BadMethodCallException("Invalid defaultable field behaviour handler for `$class`");
                     }
                 }
             }
@@ -107,15 +119,24 @@ class DefaultableField
     }
 
     /**
-     * Return the cache key for the field on the resource
+     * Store the last value for a field on a resource
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @param  \Laravel\Nova\Fields\Field       $field
      * @return string
      */
-    public static function cacheKey(NovaRequest $request, Field $field)
+    public static function cacheLastValue(NovaRequest $request, Field $field)
     {
-        return config('defaultable_field.cache.key').'.'.auth()->id().'.'.md5(static::resourceAttribute($request, $field));
+        if ($field instanceof MorphTo) {
+            Cache::put(DefaultableField::cacheKey($request, $field), [
+                $request[$field->attribute],
+                $request->{$field->attribute.'_type'},
+            ], config('defaultable_field.cache.ttl'));
+        }
+        else {
+            Cache::put(DefaultableField::cacheKey($request, $field), $request[$field->attribute], config('defaultable_field.cache.ttl'));
+        }
+        // dd($field, $request->all(), $field->attribute, $request[$field->attribute]);
     }
 
     /**
@@ -125,9 +146,9 @@ class DefaultableField
      * @param  \Laravel\Nova\Fields\Field       $field
      * @return string
      */
-    public static function resourceAttribute(NovaRequest $request, Field $field)
+    public static function cacheKey(NovaRequest $request, Field $field)
     {
-        return $request->resource().'@'.$field->attribute;
+        return config('defaultable_field.cache.key').'.'.auth()->id().'.'.md5($request->resource().'::'.get_class($field).'::'.$field->attribute);
     }
 
     /**
@@ -140,8 +161,11 @@ class DefaultableField
     protected static function handleMorphTo(MorphTo $field, $value)
     {
         if (is_array($value)) {
-            list($type, $value) = $value;
-            $type = $type::uriKey();
+            list($value, $type) = $value;
+
+            if (class_exists($type) && is_a($type, Resource::class, true)) {
+                $type = $type::uriKey();
+            }
         }
         else {
             $type = null;

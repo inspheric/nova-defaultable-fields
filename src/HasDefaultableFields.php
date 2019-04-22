@@ -24,7 +24,7 @@ trait HasDefaultableFields
         $fields->filter(function($field) {
             return $field->meta['defaultLast'] ?? false;
         })->each(function($field) use ($request) {
-            Cache::put(DefaultableField::cacheKey($request, $field), $request[$field->attribute], config('defaultable_field.cache.ttl'));
+            DefaultableField::cacheLastValue($request, $field);
         });
 
         return $filled;
