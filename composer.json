@@ -1,0 +1,31 @@
+{
+    "name": "inspheric/nova-defaultable",
+    "description": "Default values for Nova fields when creating resources.",
+    "keywords": [
+        "laravel",
+        "nova",
+        "field",
+        "default"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=7.1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Inspheric\\NovaDefaultable\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Inspheric\\NovaDefaultable\\DefaultableServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
