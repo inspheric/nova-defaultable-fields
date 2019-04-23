@@ -35,15 +35,25 @@ class DefaultableField
     /**
      * Enable defaulting behaviour on a custom field type
      *
-     * @param  string|\Laravel\Nova\Fields\Field $field
+     * @param  string|\Laravel\Nova\Fields\Field|string[]|\Laravel\Nova\Fields\Field[] $field
      * @param  string|callable $macro
      * @return void
      */
     public static function extend($field, $macro)
     {
+        if (is_array($field)) {
+            foreach ($field as $fld) {
+                $fld = is_object($fld) ? get_class($fld) : $fld;
+
+                static::$fieldMacros[$fld] = $macro;
+            }
+
+            return;
+        }
+
         $field = is_object($field) ? get_class($field) : $field;
 
-        static::$fieldMacros[$field] = $macro;
+        return static::$fieldMacros[$field] = $macro;
     }
 
     /**
@@ -58,7 +68,7 @@ class DefaultableField
     {
         if ($field instanceof ListableField) {
             $class = get_class($field);
-            throw new InvalidArgumentException("Listable field type `$class` does not support defaultable values");
+            throw new InvalidArgumentException("Listable field type `$class` does not support defaultable field");
         }
 
         $request = app(NovaRequest::class);
@@ -85,7 +95,7 @@ class DefaultableField
                         return static::__callStatic($macro, [$field, $value]);
                     }
                     else {
-                        throw new BadMethodCallException("Invalid defaultable field behaviour handler for `$class`");
+                        throw new BadMethodCallException("Invalid defaultable field handler for `$class`");
                     }
                 }
             }

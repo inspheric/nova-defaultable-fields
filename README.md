@@ -26,6 +26,13 @@ abstract class Resource extends NovaResource
 ```
 
 ## Basic Usage
+
+When creating resources, there may be values which can be defaulted to save the user time, rather than needing to be entered into a blank form every time. This could include populating the `user_id` on a resource that the current user owns, repeating the same 'parent' record for several new records in a row, or populating an incrementing value e.g. an invoice number.
+
+This package plugs into existing fields and provides two simple methods to supply a default value.
+
+*Note:* The defaultable behaviour below is only applicable on the 'create' form. Fields will not be defaulted on 'update' requests; however, the last used value will be stored and can be used on a later 'create' request.
+
 ### Default any value
 
 Use the `default()` method on any standard Nova field to populate a simple value:
@@ -47,10 +54,12 @@ Text::make('Name')
 ### Special cases
 #### Default a BelongsTo field
 
-You can use the `default()` method on a Nova `BelongsTo` field by simply returning the primary key of the related record:
+You can use the `default()` method on a Nova `BelongsTo` field by simply returning the primary key of the related record, e.g.:
 
 ```php
-BelongsTo::make('Owner', 'owner')
+$owner = $request->user()->id;
+
+BelongsTo::make('Owner')
     ->default($owner->id),
 ```
 
@@ -59,6 +68,9 @@ BelongsTo::make('Owner', 'owner')
 To use the `default()` method on a Nova `MorphTo` field, you must return an array containing the primary key and the morph type:
 
 ```php
+
+$post = App\Post::find(1);
+
 MorphTo::make('Post', 'commentable')
     ->default([$post->id, Post::class]),
 ```
@@ -77,12 +89,12 @@ Text::make('Name')
     ->defaultLast(),
 ```
 
-The value is cached uniquely to the user ID, resource and attribute. The default cache duration is an hour, but this is customisable (see Configuration).
+The value is cached uniquely to the user, resource, field, and attribute. The default cache duration is an hour, but this is customisable (see Configuration).
 
 This can be used, for example, to speed up creating multiple resources one after another with the same parent resource, e.g.
 
 ```php
-BelongsTo::make('User')
+BelongsTo::make('Owner')
     ->defaultLast(),
 ```
 
@@ -108,29 +120,62 @@ Number::make('Invoice Number')
     }),
 ```
 
-This can be used, for example, to increment a value each time a new resource is created. *Note:* This should not be relied upon for uniqueness or strictly sequential incrementing.
+This can be used, for example, to increment a value each time a new resource is created. *Note:* This is a convenience only and should not be relied upon for uniqueness or strictly sequential incrementing.
+
+### Default last value or static value
+
+If the user does not yet have a 'last' value stored, or the cache has expired, the value for `defaultLast()` will be blank. If you want to fall back to another value if nothing is found in the cache, you can simply do this in the callback, e.g.:
+
+```php
+BelongsTo::make('Owner')
+    ->defaultLast(function($value, NovaRequest $request) {
+        return $value ?: $request->user()->id;
+    }),
+```
+
+In this example, the owner of the first record created will default to the current user, but every subsequent record will default to the last value saved.
 
 ## Advanced Usage
 ### Extend
 
-Out of the box, the package supports all standard Nova fields which have a single value. It does not support any fields that implement `Laravel\Nova\Contracts\ListableField`, such as `HasMany`, `BelongsToMany` etc.
+Out of the box, the package supports all standard Nova fields which have a single value and can be edited on the 'create' form. It does not support any of the `...Many` fields that implement `Laravel\Nova\Contracts\ListableField`, such as `HasMany`, `BelongsToMany` etc.
 
+There is specific behaviour for the `BelongsTo` and `MorphTo` fields, as described above.
+
+Any custom field with a single value which extends `Laravel\Nova\Fields\Field` *should* work without customisation. However, if required, you can extend the behaviour of defaultable fields to support custom field types which need additional metadata to be populated.
+
+The `DefaultableField::extend()` method takes the class name of your custom field and a callback which receives `$field` and `$value`. You must return the `$field` and it is suggested that you use `$field->withMeta()` to send the appropriate metadata.
+
+In your `App\Providers\NovaServiceProvider`:
 ```php
+use Inspheric\NovaDefault\DefaultableField;
+
+DefaultableField::extend(YourField::class, function($field, $value) {
+    return $field->withMeta([
+        'value' => $value, // This line is usually required to populate the value
+        'yourMeta' => 'yourValue', // Any additional meta depends on your custom field type
+    ]);
+});
 ```
 
-// DefaultableField::extend(Text::class, function($field, $value) {
-//     return $field->withMeta([
-//         'value' => 'BLAHBLAH',
-//     ]);
-// });
+You can pass an array of field types as the first argument to use the same callback on all of them:
 
-// DefaultableField::macro('handleText', function($field, $value) {
-//     return $field->withMeta([
-//         'value' => 'BLAH2BLAH2',
-//     ]);
-// });
-// DefaultableField::extend(Text::class, 'handleText');
+```php
+DefaultableField::extend([YourField::class, YourOtherField::class], function($field, $value) {
+    // ...
+});
+```
 
+Alternatively, `Inspheric\NovaDefault\DefaultableField` is macroable, so you can add a macro and then use the macro's name as a string as the second argument for the `extend()` method:
+
+```php
+DefaultableField::macro('handleYourField', function($field, $value) {
+    // ...
+});
+
+DefaultableField::extend(YourField::class, 'handleYourField');
+DefaultableField::extend(YourOtherField::class, 'handleYourField');
+```
 
 ## Configuration
 
@@ -138,4 +183,4 @@ The configuration can be published using `php artisan vendor:publish --provider=
 
 The configuration file contains two keys:
 * `cache.key` - The key to use to store the "last" values in the cache. Defaults to 'default_last' and will be prepended to authenticated user ID, resource class and field attribute for uniqueness.
-* `cache.ttl` - The time to store the last values in the cache, in seconds. Defaults to one hour.
+* `cache.ttl` - The time to store the last values in the cache, in seconds. Defaults to one hour (60 * 60).
