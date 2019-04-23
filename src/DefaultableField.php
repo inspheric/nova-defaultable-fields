@@ -53,7 +53,7 @@ class DefaultableField
 
         $field = is_object($field) ? get_class($field) : $field;
 
-        return static::$fieldMacros[$field] = $macro;
+        static::$fieldMacros[$field] = $macro;
     }
 
     /**
@@ -73,7 +73,7 @@ class DefaultableField
 
         $request = app(NovaRequest::class);
 
-        if ($request->editMode == 'create') {
+        if ($request->isCreateOrAttachRequest()) {
 
             if (is_callable($value)) {
                 $value = call_user_func($value, $request);
@@ -119,7 +119,7 @@ class DefaultableField
     {
         $request = app(NovaRequest::class);
 
-        if ($request->editMode == 'create') {
+        if ($request->isCreateOrAttachRequest()) {
             $last = Cache::get(static::cacheKey($request, $field));
 
             $field->default($last, $callback);

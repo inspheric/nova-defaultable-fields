@@ -8,7 +8,6 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 
 trait HasDefaultableFields
 {
-
     /**
      * Fill the given fields for the model.
      *

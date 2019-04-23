@@ -31,7 +31,7 @@ When creating resources, there may be values which can be defaulted to save the 
 
 This package plugs into existing fields and provides two simple methods to supply a default value.
 
-*Note:* The defaultable behaviour below is only applicable on the 'create' form. Fields will not be defaulted on 'update' requests; however, the last used value will be stored and can be used on a later 'create' request.
+*Note:* The defaultable behaviour below is only applicable on the 'create' or 'attach' form. Fields will not be defaulted on 'update' or 'update-attached' requests; however, the last used value will be stored and can be used on a later 'create'/'attach' request.
 
 ### Default any value
 
@@ -138,9 +138,7 @@ In this example, the owner of the first record created will default to the curre
 ## Advanced Usage
 ### Extend
 
-Out of the box, the package supports all standard Nova fields which have a single value and can be edited on the 'create' form. It does not support any of the `...Many` fields that implement `Laravel\Nova\Contracts\ListableField`, such as `HasMany`, `BelongsToMany` etc.
-
-There is specific behaviour for the `BelongsTo` and `MorphTo` fields, as described above.
+Out of the box, the package supports all standard Nova fields which have a single value and can be edited on the 'create' form. There is specific behaviour for the `BelongsTo` and `MorphTo` fields, as described above. This package does not support any of the fields that implement `Laravel\Nova\Contracts\ListableField`, such as `HasMany`, `BelongsToMany` etc.
 
 Any custom field with a single value which extends `Laravel\Nova\Fields\Field` *should* work without customisation. However, if required, you can extend the behaviour of defaultable fields to support custom field types which need additional metadata to be populated.
 
