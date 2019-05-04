@@ -59,7 +59,7 @@ To use the `default()` method on a Nova `BelongsTo` field, you can supply either
 * An instance of an Eloquent model:
 
     ```php
-    $owner = $request->user();
+    // $owner = $request->user();
 
     BelongsTo::make('Owner')
         ->default($owner),
@@ -68,7 +68,7 @@ To use the `default()` method on a Nova `BelongsTo` field, you can supply either
 * The primary key of the related record
 
     ```php
-    $id = 1;
+    // $id = 1;
 
     BelongsTo::make('Owner')
         ->default($id),
@@ -90,7 +90,6 @@ To use the `default()` method on a Nova `MorphTo` field, you can supply either:
 * An array containing the primary key and the morph type, e.g.:
 
     ```php
-
     // $post = App\Post::find(1);
 
     MorphTo::make('Post', 'commentable')
@@ -136,7 +135,7 @@ BelongsTo::make('Owner')
 
 *Note:* The `defaultLast()` method handles the morph type for `MorphTo` fields automatically.
 
-### Display Using Callback
+### Display using a callback
 
 Both the `default()` and `defaultLast()` methods can take a callback as the final parameter which will transform the defaulted value (whether retrieved from cache or from the `default()` method) before it is populated:
 
