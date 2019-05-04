@@ -5,6 +5,8 @@ namespace Inspheric\NovaDefaultable;
 use BadMethodCallException;
 use InvalidArgumentException;
 
+use Illuminate\Database\Eloquent\Model;
+
 use Illuminate\Support\Facades\Cache;
 
 use Illuminate\Support\Traits\Macroable;
@@ -17,6 +19,7 @@ use Laravel\Nova\Fields\BelongsTo;
 
 use Laravel\Nova\Http\Requests\NovaRequest;
 
+use Laravel\Nova\Nova;
 use Laravel\Nova\Resource;
 
 class DefaultableField
@@ -75,7 +78,7 @@ class DefaultableField
 
         if ($request->isCreateOrAttachRequest()) {
 
-            if (is_callable($value)) {
+            if (!is_array($value) && is_callable($value)) {
                 $value = call_user_func($value, $request);
             }
 
@@ -165,7 +168,7 @@ class DefaultableField
      * Default behaviour for MorphTo fields
      *
      * @param  \Laravel\Nova\Fields\MorphTo  $field
-     * @param  mixed|array $value
+     * @param  mixed|array|\Illuminate\Database\Eloquent\Model|\Laravel\Nova\Resource $value
      * @return \Laravel\Nova\Fields\MorphTo
      */
     protected static function handleMorphTo(MorphTo $field, $value)
@@ -173,12 +176,30 @@ class DefaultableField
         if (is_array($value)) {
             list($value, $type) = $value;
 
-            if (class_exists($type) && is_a($type, Resource::class, true)) {
+            if ($value instanceof Model) {
+                $value = $value->getKey();
+            }
+
+            if (is_a($type, Resource::class, true)) {
                 $type = $type::uriKey();
             }
+            elseif (is_a($type, Model::class, true)) {
+                $resource = Nova::resourceForModel($type);
+                $type = $resource::uriKey();
+            }
+        }
+        elseif (is_a($value, Resource::class)) {
+            $type = $value::uriKey();
+            $value = $value->model()->getKey();
+        }
+        elseif (is_a($value, Model::class)) {
+            $model = Nova::newResourceFromModel($value);
+            $type = $model::uriKey();
+            $value = $value->getKey();
         }
         else {
             $type = null;
+            $value = null;
         }
 
         return $field->withMeta([
@@ -196,6 +217,13 @@ class DefaultableField
      */
     protected static function handleBelongsTo(BelongsTo $field, $value)
     {
+        if (is_a($value, Resource::class)) {
+            $value = $value->model()->getKey();
+        }
+        elseif (is_a($value, Model::class)) {
+            $value = $value->getKey();
+        }
+
         return $field->withMeta([
             'belongsToId' => $value,
         ]);

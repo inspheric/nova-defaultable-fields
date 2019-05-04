@@ -18,14 +18,12 @@ trait HasDefaultableFields
      */
     protected static function fillFields(NovaRequest $request, $model, $fields)
     {
-        $filled = parent::fillFields($request, $model, $fields);
-
         $fields->filter(function($field) {
             return $field->meta['defaultLast'] ?? false;
         })->each(function($field) use ($request) {
             DefaultableField::cacheLastValue($request, $field);
         });
 
-        return $filled;
+        return parent::fillFields($request, $model, $fields);
     }
 }

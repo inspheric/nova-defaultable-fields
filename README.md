@@ -54,31 +54,67 @@ Text::make('Name')
 ### Special cases
 #### Default a BelongsTo field
 
-You can use the `default()` method on a Nova `BelongsTo` field by simply returning the primary key of the related record, e.g.:
+To use the `default()` method on a Nova `BelongsTo` field, you can supply either:
 
-```php
-$owner = $request->user()->id;
+* An instance of an Eloquent model:
 
-BelongsTo::make('Owner')
-    ->default($owner->id),
-```
+    ```php
+    $owner = $request->user();
+
+    BelongsTo::make('Owner')
+        ->default($owner),
+    ```
+
+* The primary key of the related record
+
+    ```php
+    $id = 1;
+
+    BelongsTo::make('Owner')
+        ->default($id),
+    ```
 
 #### Default a MorphTo field
 
-To use the `default()` method on a Nova `MorphTo` field, you must return an array containing the primary key and the morph type:
+To use the `default()` method on a Nova `MorphTo` field, you can supply either:
 
-```php
+* An instance of an Eloquent model (the simplest option), e.g.:
 
-$post = App\Post::find(1);
+    ```php
+    // $post = App\Post::find(1);
 
-MorphTo::make('Post', 'commentable')
-    ->default([$post->id, Post::class]),
-```
-or:
-```php
-MorphTo::make('Post', 'commentable')
-    ->default([$post->id, 'posts']),
-```
+    MorphTo::make('Post', 'commentable')
+        ->default($post),
+    ```
+
+* An array containing the primary key and the morph type, e.g.:
+
+    ```php
+
+    // $post = App\Post::find(1);
+
+    MorphTo::make('Post', 'commentable')
+        ->default([$post->id, App\Nova\Post::class]), // The Resource class or class name
+    ```
+    or:
+    ```php
+    MorphTo::make('Post', 'commentable')
+        ->default([$post->id, App\Post::class]), // The Eloquent model class or class name
+    ```
+    or:
+    ```php
+    MorphTo::make('Post', 'commentable')
+        ->default([$post->id, 'posts']), // The uriKey string
+    ```
+
+* An instance of a Nova Resource, e.g.:
+
+    ```php
+    // $postResource = new App\Nova\Post(App\Post::find(1));
+
+    MorphTo::make('Post', 'commentable')
+        ->default($postResource),
+    ```
 
 ### Default the last saved value
 
