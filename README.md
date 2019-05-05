@@ -173,7 +173,9 @@ In this example, the owner of the first record created will default to the curre
 ## Advanced Usage
 ### Extend
 
-Out of the box, the package supports all standard Nova fields which have a single value and can be edited on the 'create' form. There is specific behaviour for the `BelongsTo` and `MorphTo` fields, as described above. This package does not support any of the fields that implement `Laravel\Nova\Contracts\ListableField`, such as `HasMany`, `BelongsToMany` etc.
+Out of the box, the package supports all standard Nova fields which have a single value and can be edited on the 'create' form. There is specific behaviour for the `BelongsTo` and `MorphTo` fields, as described above.
+
+This package does not support any of the fields that implement `Laravel\Nova\Contracts\ListableField`, such as `HasMany`, `BelongsToMany` etc., or fields that extend `Laravel\Nova\Fields\File`, such as `File`, `Image` or `Avatar`.
 
 Any custom field with a single value which extends `Laravel\Nova\Fields\Field` *should* work without customisation. However, if required, you can extend the behaviour of defaultable fields to support custom field types which need additional metadata to be populated.
 

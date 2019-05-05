@@ -13,6 +13,7 @@ use Illuminate\Support\Traits\Macroable;
 
 use Laravel\Nova\Contracts\ListableField;
 
+use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Field;
 use Laravel\Nova\Fields\MorphTo;
 use Laravel\Nova\Fields\BelongsTo;
@@ -33,6 +34,15 @@ class DefaultableField
     protected static $fieldMacros = [
         MorphTo::class => 'handleMorphTo',
         BelongsTo::class => 'handleBelongsTo',
+    ];
+
+    /**
+     * Methods to handle various field types
+     * @var array
+     */
+    protected static $unsupported = [
+        ListableField::class,
+        File::class,
     ];
 
     /**
@@ -69,9 +79,11 @@ class DefaultableField
      */
     public static function default(Field $field, $value, callable $callback = null)
     {
-        if ($field instanceof ListableField) {
-            $class = get_class($field);
-            throw new InvalidArgumentException("Listable field type `$class` does not support defaultable field");
+        foreach (static::$unsupported as $unsupported) {
+            if ($field instanceof $unsupported) {
+                $class = get_class($field);
+                throw new InvalidArgumentException("Field type `$class` does not support defaultable values");
+            }
         }
 
         $request = app(NovaRequest::class);
