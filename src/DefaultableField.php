@@ -141,15 +141,16 @@ class DefaultableField
     public static function cacheLastValue(NovaRequest $request, Field $field)
     {
         if ($field instanceof MorphTo) {
-            Cache::put(DefaultableField::cacheKey($request, $field), [
-                $request[$field->attribute],
+            $cacheable = [
+                $request->{$field->attribute},
                 $request->{$field->attribute.'_type'},
-            ], config('defaultable_field.cache.ttl'));
+            ];
         }
         else {
-            Cache::put(DefaultableField::cacheKey($request, $field), $request[$field->attribute], config('defaultable_field.cache.ttl'));
+            $cacheable = $request->{$field->attribute};
         }
-        // dd($field, $request->all(), $field->attribute, $request[$field->attribute]);
+
+        Cache::put(DefaultableField::cacheKey($request, $field), $cacheable, config('defaultable_field.cache.ttl'));
     }
 
     /**
