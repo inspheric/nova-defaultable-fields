@@ -90,20 +90,20 @@ To use the `default()` method on a Nova `MorphTo` field, you can supply either:
 * An array containing the primary key and the morph type, e.g.:
 
     ```php
-    // $post = App\Post::find(1);
+    // $postId = 1;
 
     MorphTo::make('Post', 'commentable')
-        ->default([$post->id, App\Nova\Post::class]), // The Resource class or class name
+        ->default([$postId, App\Nova\Post::class]), // The Resource class or class name
     ```
     or:
     ```php
     MorphTo::make('Post', 'commentable')
-        ->default([$post->id, App\Post::class]), // The Eloquent model class or class name
+        ->default([$postId, App\Post::class]), // The Eloquent model class or class name
     ```
     or:
     ```php
     MorphTo::make('Post', 'commentable')
-        ->default([$post->id, 'posts']), // The uriKey string
+        ->default([$postId, 'posts']), // The uriKey string
     ```
 
 * An instance of a Nova Resource, e.g.:
