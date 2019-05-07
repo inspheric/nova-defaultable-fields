@@ -37,7 +37,7 @@ class DefaultableField
     ];
 
     /**
-     * Methods to handle various field types
+     * Classes or interfaces which are not supported
      * @var array
      */
     protected static $unsupported = [
