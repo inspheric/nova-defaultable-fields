@@ -12,7 +12,7 @@ Install the package into a Laravel app that uses [Nova](https://nova.laravel.com
 composer require inspheric/nova-defaultable
 ```
 
-Add the trait `Inspheric\NovaDefaultable\HasDefaultableFields` to your base Resource class (located at `app\Nova\Resource.php`):
+(Optional) If you want to use the `defaultLast()` method (see below), you need to add the trait `Inspheric\NovaDefaultable\HasDefaultableFields` to your base Resource class (located at `app\Nova\Resource.php`):
 
 ```php
 use Inspheric\NovaDefaultable\HasDefaultableFields;
