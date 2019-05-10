@@ -27,7 +27,7 @@ abstract class Resource extends NovaResource
 
 ## Basic Usage
 
-When creating resources, there may be values which can be defaulted to save the user time, rather than needing to be entered into a blank form every time. This could include populating the `user_id` on a resource that the current user owns, repeating the same 'parent' record for several new records in a row, starting with a checkbox in a checked state, or populating an incrementing value e.g. an invoice number.
+When creating resources, there may be values which can be defaulted to save the user time, rather than needing to be entered into a blank form every time. This could include populating the `user_id` on a resource that the current user owns, repeating the same 'parent' record for several new records in a row, starting with a checkbox in a checked state, or populating an incrementing value, e.g. an invoice number.
 
 This package plugs into existing fields and provides two simple methods to supply a default value.
 
@@ -35,7 +35,7 @@ This package plugs into existing fields and provides two simple methods to suppl
 
 ### Default any value
 
-Use the `default()` method on any standard Nova field to populate a simple value, e.g.:
+Use the `default()` method on any standard Nova field to populate a simple value, e.g.
 
 ```php
 Text::make('Name')
