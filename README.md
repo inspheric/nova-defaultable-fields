@@ -35,13 +35,18 @@ This package plugs into existing fields and provides two simple methods to suppl
 
 ### Default any value
 
-Use the `default()` method on any standard Nova field to populate a simple value:
+Use the `default()` method on any standard Nova field to populate a simple value, e.g.:
 
 ```php
 Text::make('Name')
-    ->default($value),
+    ->default('Default Name'),
 ```
 
+or:
+```php
+Boolean::make('Active')
+    ->default(true),
+```
 The `default()` method can also take a callback as the first parameter, which will return the value to be populated:
 
 ```php
