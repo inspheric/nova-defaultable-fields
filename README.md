@@ -61,7 +61,7 @@ Text::make('Name')
 
 To use the `default()` method on a Nova `BelongsTo` field, you can supply either:
 
-* An instance of an Eloquent model:
+* An instance of an Eloquent model, e.g.
 
     ```php
     // $author = $request->user();
@@ -70,7 +70,7 @@ To use the `default()` method on a Nova `BelongsTo` field, you can supply either
         ->default($author),
     ```
 
-* The primary key of the related record
+* The primary key of the related record, e.g.
 
     ```php
     // $id = 1;
@@ -85,7 +85,7 @@ To use the `default()` method on a Nova `BelongsTo` field, you can supply either
 
 To use the `default()` method on a Nova `MorphTo` field, you can supply either:
 
-* An instance of an Eloquent model (the simplest option), e.g.:
+* An instance of an Eloquent model (the simplest option), e.g.
 
     ```php
     // $post = App\Post::find(1);
@@ -98,7 +98,7 @@ To use the `default()` method on a Nova `MorphTo` field, you can supply either:
         ->default($post),
     ```
 
-* An array containing the primary key and the morph type, e.g.:
+* An array containing the primary key and the morph type, e.g.
 
     ```php
     // $postId = 1;
@@ -120,7 +120,7 @@ To use the `default()` method on a Nova `MorphTo` field, you can supply either:
         ->default([$postId, 'posts']), // The uriKey string
     ```
 
-* An instance of a Nova Resource, e.g.:
+* An instance of a Nova Resource, e.g.
 
     ```php
     // $postResource = new App\Nova\Post(App\Post::find(1));
@@ -152,7 +152,7 @@ BelongsTo::make('Author')
 
 ### Display using a callback
 
-Both the `default()` and `defaultLast()` methods can take a callback as the final parameter which will transform the defaulted value (whether retrieved from cache or from the `default()` method) before it is populated:
+Both the `default()` and `defaultLast()` methods can take a callback as the final parameter which will transform the defaulted value (whether retrieved from cache or from the `default()` method) before it is populated, e.g.
 
 ```php
 $lastInvoiceNumber = auth()->user()->last_invoice_number;
@@ -174,7 +174,7 @@ This can be used, for example, to increment a value each time a new resource is 
 
 ### Default last value _or_ static value
 
-If the user does not yet have a 'last' value stored, or the cache has expired, the value for `defaultLast()` will be blank. If you want to fall back to another value if nothing is found in the cache, you can simply do this in the callback, e.g.:
+If the user does not yet have a 'last' value stored, or the cache has expired, the value for `defaultLast()` will be blank. If you want to fall back to another value if nothing is found in the cache, you can simply do this in the callback, e.g.
 
 ```php
 BelongsTo::make('Author')
@@ -208,7 +208,7 @@ DefaultableField::extend(YourField::class, function($field, $value) {
 });
 ```
 
-You can pass an array of field types as the first argument to use the same callback on all of them:
+You can pass an array of field types as the first argument to use the same callback on all of them, i.e.
 
 ```php
 DefaultableField::extend([YourField::class, YourOtherField::class], function($field, $value) {
@@ -216,7 +216,7 @@ DefaultableField::extend([YourField::class, YourOtherField::class], function($fi
 });
 ```
 
-Alternatively, `Inspheric\NovaDefault\DefaultableField` is macroable, so you can add a macro and then use the macro's name as a string as the second argument for the `extend()` method:
+Alternatively, `Inspheric\NovaDefault\DefaultableField` is macroable, so you can add a macro and then use the macro's name as a string as the second argument for the `extend()` method, i.e.
 
 ```php
 DefaultableField::macro('handleYourField', function($field, $value) {
