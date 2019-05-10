@@ -64,10 +64,10 @@ To use the `default()` method on a Nova `BelongsTo` field, you can supply either
 * An instance of an Eloquent model:
 
     ```php
-    // $owner = $request->user();
+    // $author = $request->user();
 
-    BelongsTo::make('Owner')
-        ->default($owner),
+    BelongsTo::make('Author')
+        ->default($author),
     ```
 
 * The primary key of the related record
@@ -75,9 +75,11 @@ To use the `default()` method on a Nova `BelongsTo` field, you can supply either
     ```php
     // $id = 1;
 
-    BelongsTo::make('Owner')
+    BelongsTo::make('Author')
         ->default($id),
     ```
+    
+    *Note:* This is a convenience only and should not be relied upon for enforcing that an author can only edit their own posts, etc.
 
 #### Default a MorphTo field
 
@@ -88,7 +90,11 @@ To use the `default()` method on a Nova `MorphTo` field, you can supply either:
     ```php
     // $post = App\Post::find(1);
 
-    MorphTo::make('Post', 'commentable')
+    MorphTo::make('Commentable')
+        ->types([
+            Post::class,
+            Video::class,
+        ])
         ->default($post),
     ```
 
@@ -97,17 +103,20 @@ To use the `default()` method on a Nova `MorphTo` field, you can supply either:
     ```php
     // $postId = 1;
 
-    MorphTo::make('Post', 'commentable')
+    MorphTo::make('Commentable')
+        ->types(...)
         ->default([$postId, App\Nova\Post::class]), // The Resource class or class name
     ```
     or:
     ```php
-    MorphTo::make('Post', 'commentable')
+    MorphTo::make('Commentable')
+        ->types(...)
         ->default([$postId, App\Post::class]), // The Eloquent model class or class name
     ```
     or:
     ```php
-    MorphTo::make('Post', 'commentable')
+    MorphTo::make('Commentable')
+        ->types(...)
         ->default([$postId, 'posts']), // The uriKey string
     ```
 
@@ -116,7 +125,8 @@ To use the `default()` method on a Nova `MorphTo` field, you can supply either:
     ```php
     // $postResource = new App\Nova\Post(App\Post::find(1));
 
-    MorphTo::make('Post', 'commentable')
+    MorphTo::make('Commentable')
+        ->types(...)
         ->default($postResource),
     ```
 
@@ -134,7 +144,7 @@ The value is cached uniquely to the user, resource, field, and attribute. The de
 This can be used, for example, to speed up creating multiple resources one after another with the same parent resource, e.g.
 
 ```php
-BelongsTo::make('Owner')
+BelongsTo::make('Author')
     ->defaultLast(),
 ```
 
@@ -162,12 +172,12 @@ Number::make('Invoice Number')
 
 This can be used, for example, to increment a value each time a new resource is created. *Note:* This is a convenience only and should not be relied upon for uniqueness or strictly sequential incrementing.
 
-### Default last value or static value
+### Default last value _or_ static value
 
 If the user does not yet have a 'last' value stored, or the cache has expired, the value for `defaultLast()` will be blank. If you want to fall back to another value if nothing is found in the cache, you can simply do this in the callback, e.g.:
 
 ```php
-BelongsTo::make('Owner')
+BelongsTo::make('Author')
     ->defaultLast(function($value, NovaRequest $request) {
         return $value ?: $request->user()->id;
     }),
