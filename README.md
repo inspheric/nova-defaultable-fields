@@ -183,7 +183,7 @@ BelongsTo::make('Author')
     }),
 ```
 
-In this example, the owner of the first record created will default to the current user, but every subsequent record will default to the last value saved.
+In this example, the author of the first record created will default to the current user, but every subsequent record will default to the last value saved.
 
 ## Advanced Usage
 ### Extend
