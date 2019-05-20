@@ -192,11 +192,12 @@ Out of the box, the package supports all standard Nova fields which have a singl
 
 This package does not support any of the fields that implement `Laravel\Nova\Contracts\ListableField`, such as `HasMany`, `BelongsToMany` etc., or fields that extend `Laravel\Nova\Fields\File`, such as `File`, `Image` or `Avatar`.
 
-Any custom field with a single value which extends `Laravel\Nova\Fields\Field` *should* work without customisation. However, if required, you can extend the behaviour of defaultable fields to support custom field types which need additional metadata to be populated.
+Any custom field with a single value which extends `Laravel\Nova\Fields\Field` *should* work without customisation. However, if required, you can extend the behaviour to support custom field types which need additional metadata to be populated.
 
-The `DefaultableField::extend()` method takes the class name of your custom field and a callback which receives `$field` and `$value`. You must return the `$field` and it is suggested that you use `$field->withMeta()` to send the appropriate metadata.
+The `DefaultableField::extend()` method takes the class name of your custom field and a callback which receives `$field` (the resolved `Field` instance) and `$value` (the value that was passed to `default()` or retrieved from cache by `defaultLast()`).
 
-In your `App\Providers\NovaServiceProvider`:
+You **must** return the `$field` from your callback, and it is suggested that you use `$field->withMeta()` to send the appropriate metadata that will cause the field to be prepopulated, e.g. in your `App\Providers\NovaServiceProvider`:
+
 ```php
 use Inspheric\NovaDefault\DefaultableField;
 
@@ -207,6 +208,8 @@ DefaultableField::extend(YourField::class, function($field, $value) {
     ]);
 });
 ```
+
+*Note:* If you are using `extend()` as above, the basic defaulting functionality of this package is completely overridden, so you must ensure that your own callback sets the field's value correctly. This is usually done by setting the `'value'` meta key, but your field may differ, or may need additional meta keys to be set (such as `'belongsToId'` in the case of a `BelongsTo` field).
 
 You can pass an array of field types as the first argument to use the same callback on all of them, i.e.
 
