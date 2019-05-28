@@ -90,7 +90,7 @@ class DefaultableField
 
         if ($request->isCreateOrAttachRequest()) {
 
-            if (!is_array($value) && is_callable($value)) {
+            if (!is_array($value) && !is_string($value) && is_callable($value)) {
                 $value = call_user_func($value, $request);
             }
 
