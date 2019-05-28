@@ -19,6 +19,7 @@ use Laravel\Nova\Fields\MorphTo;
 use Laravel\Nova\Fields\BelongsTo;
 
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Http\Controllers\ActionController;
 
 use Laravel\Nova\Nova;
 use Laravel\Nova\Resource;
@@ -37,7 +38,7 @@ class DefaultableField
     ];
 
     /**
-     * Classes or interfaces which are not supported
+     * Methods to handle various field types
      * @var array
      */
     protected static $unsupported = [
@@ -87,10 +88,9 @@ class DefaultableField
         }
 
         $request = app(NovaRequest::class);
-
-        if ($request->isCreateOrAttachRequest()) {
-
-            if (!is_array($value) && is_callable($value)) {
+        
+        if ($request->isCreateOrAttachRequest() || static::isActionRequest($request)) {
+            if (!is_array($value) && !is_string($value) && is_callable($value)) {
                 $value = call_user_func($value, $request);
             }
 
@@ -134,13 +134,24 @@ class DefaultableField
     {
         $request = app(NovaRequest::class);
 
-        if ($request->isCreateOrAttachRequest()) {
+        if ($request->isCreateOrAttachRequest() || static::isActionRequest($request)) {
             $last = Cache::get(static::cacheKey($request, $field));
 
             $field->default($last, $callback);
         }
 
         return $field->withMeta(['defaultLast' => 'true']);
+    }
+    
+    /**
+     * Determine whether the request is an Action request
+     *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
+     * @return bool
+     */
+    protected static function isActionRequest(NovaRequest $request)
+    {
+        return $request->route()->getController() instanceof ActionController;
     }
 
     /**
