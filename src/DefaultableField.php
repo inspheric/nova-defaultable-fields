@@ -21,7 +21,6 @@ use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Http\Requests\ActionRequest;
 use Laravel\Nova\Http\Controllers\ActionController;
-use Laravel\Nova\Actions\Action;
 
 use Laravel\Nova\Nova;
 use Laravel\Nova\Resource;
@@ -162,9 +161,10 @@ class DefaultableField
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @param  \Laravel\Nova\Fields\Field       $field
+     * @param  string|null      $action
      * @return string
      */
-    public static function cacheLastValue(NovaRequest $request, Field $field)
+    public static function cacheLastValue(NovaRequest $request, Field $field, $action = null)
     {
         if ($field instanceof MorphTo) {
             $cacheable = [
@@ -176,7 +176,7 @@ class DefaultableField
             $cacheable = $request->{$field->attribute};
         }
 
-        $cacheKey = DefaultableField::cacheKey($request, $field);
+        $cacheKey = DefaultableField::cacheKey($request, $field, $action);
         
         Cache::put($cacheKey, $cacheable, config('defaultable_field.cache.ttl'));
     }
@@ -186,14 +186,13 @@ class DefaultableField
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @param  \Laravel\Nova\Fields\Field       $field
+     * @param  string|null      $action
      * @return string
      */
-    public static function cacheKey(NovaRequest $request, Field $field)
+    public static function cacheKey(NovaRequest $request, Field $field, $action = null)
     {
-        $action = null;
-        
         if (static::isActionRequest($request)) {
-            $action = $request->query('action').'::';
+            $action = ($action ?: $request->query('action')).'::';
         }
         
         return config('defaultable_field.cache.key').'.'.auth()->id().'.'.md5($request->resource().'::'.$action.get_class($field).'::'.$field->attribute);
