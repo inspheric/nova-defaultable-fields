@@ -19,7 +19,9 @@ use Laravel\Nova\Fields\MorphTo;
 use Laravel\Nova\Fields\BelongsTo;
 
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Http\Requests\ActionRequest;
 use Laravel\Nova\Http\Controllers\ActionController;
+use Laravel\Nova\Actions\Action;
 
 use Laravel\Nova\Nova;
 use Laravel\Nova\Resource;
@@ -174,7 +176,9 @@ class DefaultableField
             $cacheable = $request->{$field->attribute};
         }
 
-        Cache::put(DefaultableField::cacheKey($request, $field), $cacheable, config('defaultable_field.cache.ttl'));
+        $cacheKey = DefaultableField::cacheKey($request, $field);
+        
+        Cache::put($cacheKey, $cacheable, config('defaultable_field.cache.ttl'));
     }
 
     /**
@@ -186,7 +190,13 @@ class DefaultableField
      */
     public static function cacheKey(NovaRequest $request, Field $field)
     {
-        return config('defaultable_field.cache.key').'.'.auth()->id().'.'.md5($request->resource().'::'.get_class($field).'::'.$field->attribute);
+        $action = null;
+        
+        if (static::isActionRequest($request)) {
+            $action = $request->query('action').'::';
+        }
+        
+        return config('defaultable_field.cache.key').'.'.auth()->id().'.'.md5($request->resource().'::'.$action.get_class($field).'::'.$field->attribute);
     }
 
     /**
