@@ -167,27 +167,23 @@ BelongsTo::make('Author')
 
 *Note:* The `defaultLast()` method handles the morph type for `MorphTo` fields automatically.
 
-*Note:* Because the "Select Action" dropdown is not refreshed after an action is run on the index view, `defaultLast()` cannot repopulate each last value if you run the action several times on the same index view. If you need the value to be repopulated every time on the index view, you can return `$this->refreshIndex()` from the action's `handle()` method, e.g.
+*Note:* Because the "Select Action" dropdown is not refreshed after an action is run on the index view, `defaultLast()` cannot repopulate each last value if you run the action several times while on the same index view. If you need the value to be repopulated every time on the index view, you can set the property `$refreshIndex = true` on the action class, e.g.
 
 ```php
 class YourAction extends Action
 {
+    protected $refreshIndex = true;
+    
     public function handle(ActionFields $fields, Collection $models)
     {
         // ...
-        
-        return $this->refreshIndex();
     }
 }
 ```
 
-The `refreshIndex()` method will not refresh the page if the action is queued (implements `ShouldQueue`) or if it is called from the detail view.
+When the action is run from the index view, it will return a redirect response to refresh the whole page. It has no effect if the action is run from the detail view, because the "Select Action" dropdown is refreshed each time automatically.
 
-If you want to return your own [action response](https://nova.laravel.com/docs/2.0/actions/defining-actions.html#action-responses) (which will only be returned if the action is called from the detail view), you can pass it as an argument to the `refreshIndex()` method, i.e.
-
-```php
-return $this->refreshIndex(Action::danger('Something went wrong!'));
-```
+*Note:* If `$refreshIndex = true`, and you return your own [action response](https://nova.laravel.com/docs/2.0/actions/defining-actions.html#action-responses) from the action's `handle()` method, it will be ignored on the index view because it is overridden by the redirect response.
 
 ### Display using a callback
 
