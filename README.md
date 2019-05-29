@@ -1,5 +1,5 @@
 # Laravel Nova Defaultable Fields
-Populate default values for Nova fields when creating resources.
+Populate default values for Nova fields when creating resources and **now supports resource actions!**
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/inspheric/nova-defaultable.svg?style=flat-square)](https://packagist.org/packages/inspheric/nova-defaultable)
 [![Total Downloads](https://img.shields.io/packagist/dt/inspheric/nova-defaultable.svg?style=flat-square)](https://packagist.org/packages/inspheric/nova-defaultable)
@@ -12,7 +12,7 @@ Install the package into a Laravel app that uses [Nova](https://nova.laravel.com
 composer require inspheric/nova-defaultable
 ```
 
-(Optional) If you want to use the `defaultLast()` method (see below), you need to add the trait `Inspheric\NovaDefaultable\HasDefaultableFields` to your base Resource class (located at `app\Nova\Resource.php`):
+(Optional) If you want to use the `defaultLast()` method when creating resources ([see below](#default-the-last-saved-value)), you need to add the trait `Inspheric\NovaDefaultable\HasDefaultableFields` to your base Resource class (located at `app\Nova\Resource.php`):
 
 ```php
 use Inspheric\NovaDefaultable\HasDefaultableFields;
@@ -25,13 +25,26 @@ abstract class Resource extends NovaResource
 }
 ```
 
+(Optional) If you want to use the `defaultLast()` method on resource actions, you need to add the trait `Inspheric\NovaDefaultable\HasDefaultableActionFields` to **every** Action class (located at `app\Nova\Actions\`, one by one) that you wish to use defaultable fields on:
+
+```php
+use Inspheric\NovaDefaultable\HasDefaultableActionFields;
+
+class YourAction extends Action
+{
+    use HasDefaultableActionFields;
+
+    // ...
+}
+```
+
 ## Basic Usage
 
-When creating resources, there may be values which can be defaulted to save the user time, rather than needing to be entered into a blank form every time. This could include populating the `user_id` on a resource that the current user owns, repeating the same 'parent' record for several new records in a row, starting with a checkbox in a checked state, or populating an incrementing value, e.g. an invoice number.
+When creating resources or running resource actions, there may be values which can be defaulted to save the user time, rather than needing to be entered into a blank form every time. This could include populating the `user_id` on a resource that the current user owns, repeating the same 'parent' record for several new records in a row, starting with a checkbox in a checked state, or populating an incrementing value, e.g. an invoice number.
 
 This package plugs into existing fields and provides two simple methods to supply a default value.
 
-*Note:* The defaultable behaviour below is only applicable on the 'create' or 'attach' form. Fields will not be defaulted on 'update' or 'update-attached' requests; however, the last used value will be stored on any successful save request, and will be defaulted on a later 'create'/'attach' request.
+*Note:* The defaultable behaviour below is only applicable on the resource's 'create' or 'attach' form, or on action requests. Fields will not be defaulted on 'update' or 'update-attached' requests; however, the last used value will be stored on any successful save request, and will be defaulted on a later 'create'/'attach' request.
 
 ### Default any value
 
@@ -132,14 +145,18 @@ To use the `default()` method on a Nova `MorphTo` field, you can supply either:
 
 ### Default the last saved value
 
-Use the `defaultLast()` method to cache the last value that was saved for this field on this resource and repopulate it on the next new resource:
+Use the `defaultLast()` method to cache the last value that was saved for this field and repopulate it the next time this field is resolved:
 
 ```php
 Text::make('Name')
     ->defaultLast(),
 ```
 
-The value is cached uniquely to the user, resource, field, and attribute. The default cache duration is an hour, but this is customisable (see Configuration).
+This will be useful in the following scenarios:
+* After saving (create or update) one resource, the last value will be repopulated when creating the next new resource.
+* After running an action on one resource, the last value will be repopulated when running the same action on another resource.
+
+The value is cached uniquely to the user, resource class, action name (if applicable), field, and attribute. The default cache duration is an hour, but this is customisable (see [Configuration](#configuration)).
 
 This can be used, for example, to speed up creating multiple resources one after another with the same parent resource, e.g.
 
@@ -149,6 +166,26 @@ BelongsTo::make('Author')
 ```
 
 *Note:* The `defaultLast()` method handles the morph type for `MorphTo` fields automatically.
+
+*Note:* Because the "Select Action" dropdown is not refreshed after an action is run on the index view, `defaultLast()` cannot repopulate each last value if you run the action several times while on the same index view. If you need the value to be repopulated every time on the index view, you can set the property `$refreshIndex = true` on the action class, e.g.
+
+```php
+class YourAction extends Action
+{
+    protected $refreshIndex = true;
+    
+    public function handle(ActionFields $fields, Collection $models)
+    {
+        // ...
+    }
+}
+```
+
+When the action is run from the index view, it will return a redirect response to refresh the whole page. It has no effect if the action is run from the detail view, because Nova refreshes the page after each action automatically.
+
+> :confounded: I don't really like this workaround but can't think of an alternative. I would be happy to hear other ideas.
+
+*Note:* If `$refreshIndex = true`, and you return your own [action response](https://nova.laravel.com/docs/2.0/actions/defining-actions.html#action-responses) from the action's `handle()` method, it will be ignored on the index view because it is overridden by the redirect response.
 
 ### Display using a callback
 
