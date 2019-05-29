@@ -167,7 +167,31 @@ BelongsTo::make('Author')
 
 *Note:* The `defaultLast()` method handles the morph type for `MorphTo` fields automatically.
 
-*Note:* The `defaultLast()` method for resource actions behaves as expected for subsequent actions run on the detail view of individual resources. However, although a value is cached when the action is run on the index view, it cannot be repopulated until the index view is reloaded. **WORK IN PROGRESS**
+*Note:* Because the "Select Action" dropdown is not refreshed after an action is run on the index view, `defaultLast()` cannot repopulate each last value if you run the action several times on the same index view. If you need the value to be repopulated every time on the index view, you can return `$this->refreshIndex()` from the action's `handle()` method, e.g.
+
+```php
+class YourAction extends Action
+{
+    public function handle(ActionFields $fields, Collection $models)
+    {
+        // ...
+        
+        return $this->refreshIndex();
+    }
+    
+    // ...
+}
+```
+
+The `refreshIndex()` method will not refresh the page if the action is queued (implements `ShouldQueue`) or if it is called from the detail view.
+
+If you want to return your own [action response](https://nova.laravel.com/docs/2.0/actions/defining-actions.html#action-responses), you can pass it as an argument to the `refreshIndex()` method, i.e.
+
+```php
+return $this->refreshIndex(Action::danger('Something went wrong!'));
+```
+
+The action response you pass will only be returned if the action is called from the detail view, because the redirect response will take priority on the index view.
 
 ### Display using a callback
 
