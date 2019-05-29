@@ -132,18 +132,7 @@ class DefaultableField
         $request = app(NovaRequest::class);
 
         if ($request->isCreateOrAttachRequest() || static::isActionRequest($request)) {
-            $action = null;
-
-            if (static::isActionRequest($request)) {
-                $action = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS, 5)[4]['object'] ?? null;
-
-                if ($action instanceof Action) {
-                    $action = $action->uriKey();
-                } else {
-                    $action = null;
-                }
-            }
-
+            $action = static::getActionName($request);
             $cacheKey = static::cacheKey($request, $field, $action);
 
             $last = Cache::get($cacheKey);
@@ -152,6 +141,28 @@ class DefaultableField
         }
 
         return $field->withMeta(['defaultLast' => 'true']);
+    }
+
+    /**
+     * Determine the name of the action
+     * @param  NovaRequest $request [description]
+     * @return [type]
+     */
+    protected static function getActionName(NovaRequest $request)
+    {
+        $action = null;
+
+        if (static::isActionRequest($request)) {
+            $action = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS, 6)[5]['object'] ?? null;
+
+            if ($action instanceof Action) {
+                $action = $action->uriKey();
+            } else {
+                $action = null;
+            }
+        }
+
+        return $action;
     }
 
     /**
