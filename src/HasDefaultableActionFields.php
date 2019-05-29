@@ -38,7 +38,9 @@ trait HasDefaultableActionFields
 
         });
 
-        return parent::handleResult($fields, $results);
+        $results = parent::handleResult($fields, $results);
+
+        return $this->refreshIndex($results);
     }
 
     /**
@@ -51,14 +53,14 @@ trait HasDefaultableActionFields
      */
     protected function refreshIndex($action = null)
     {
-        if (!$this instanceof ShouldQueue) {
+        if ($this->refreshIndex ?? false) {
             $request = app(ActionRequest::class);
 
             $referrer = $request->header('Referer');
             $uriKey = Nova::newResourceFromModel($request->targetModel())->uriKey();
 
             if (Str::endsWith($referrer, '/'.$uriKey)) {
-                return Action::redirect($referrer);
+                $action = Action::redirect($referrer);
             }
         }
 
