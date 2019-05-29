@@ -1,5 +1,5 @@
 # Laravel Nova Defaultable Fields
-Populate default values for Nova fields when creating resources and **now supports resource actions!**
+Populate default values for Nova fields when creating resources and **now supports resource actions (since v1.2)!**
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/inspheric/nova-defaultable.svg?style=flat-square)](https://packagist.org/packages/inspheric/nova-defaultable)
 [![Total Downloads](https://img.shields.io/packagist/dt/inspheric/nova-defaultable.svg?style=flat-square)](https://packagist.org/packages/inspheric/nova-defaultable)
