@@ -59,7 +59,7 @@ trait HasDefaultableActionFields
             $referrer = $request->header('Referer');
             $uriKey = Nova::newResourceFromModel($request->targetModel())->uriKey();
 
-            if (Str::endsWith($referrer, '/'.$uriKey)) {
+            if (Str::endsWith(stristr($referrer.'?', '?', true), '/'.$uriKey)) {
                 $action = Action::redirect($referrer);
             }
         }
