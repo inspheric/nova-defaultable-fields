@@ -21,6 +21,7 @@ use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Http\Requests\ActionRequest;
 use Laravel\Nova\Http\Controllers\ActionController;
+use Laravel\Nova\Actions\Action;
 
 use Laravel\Nova\Nova;
 use Laravel\Nova\Resource;
@@ -137,7 +138,23 @@ class DefaultableField
         $request = app(NovaRequest::class);
 
         if ($request->isCreateOrAttachRequest() || static::isActionRequest($request)) {
-            $last = Cache::get(static::cacheKey($request, $field));
+            
+            $action = null;
+            
+            if (static::isActionRequest($request)) {
+                $action = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS, 5)[4]['object'] ?? null;
+
+                if ($action instanceof Action) {
+                    $action = $action->uriKey();
+                }
+                else {
+                    $action = null;
+                }
+            }
+            
+            $cacheKey = static::cacheKey($request, $field, $action);
+            
+            $last = Cache::get($cacheKey);
 
             $field->default($last, $callback);
         }
