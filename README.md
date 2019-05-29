@@ -178,20 +178,16 @@ class YourAction extends Action
         
         return $this->refreshIndex();
     }
-    
-    // ...
 }
 ```
 
 The `refreshIndex()` method will not refresh the page if the action is queued (implements `ShouldQueue`) or if it is called from the detail view.
 
-If you want to return your own [action response](https://nova.laravel.com/docs/2.0/actions/defining-actions.html#action-responses), you can pass it as an argument to the `refreshIndex()` method, i.e.
+If you want to return your own [action response](https://nova.laravel.com/docs/2.0/actions/defining-actions.html#action-responses) (which will only be returned if the action is called from the detail view), you can pass it as an argument to the `refreshIndex()` method, i.e.
 
 ```php
 return $this->refreshIndex(Action::danger('Something went wrong!'));
 ```
-
-The action response you pass will only be returned if the action is called from the detail view, because the redirect response will take priority on the index view.
 
 ### Display using a callback
 
