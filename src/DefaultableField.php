@@ -89,7 +89,6 @@ class DefaultableField
         $request = app(NovaRequest::class);
 
         if ($request->isCreateOrAttachRequest() || static::isActionRequest($request)) {
-
             if (!is_array($value) && !is_string($value) && is_callable($value)) {
                 $value = call_user_func($value, $request);
             }
