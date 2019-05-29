@@ -144,8 +144,10 @@ class DefaultableField
     }
 
     /**
-     * Determine the name of the action
-     * @param  NovaRequest $request
+     * Determine the name of the action.
+     *
+     * @param NovaRequest $request
+     *
      * @return string|null
      */
     protected static function getActionName(NovaRequest $request)
