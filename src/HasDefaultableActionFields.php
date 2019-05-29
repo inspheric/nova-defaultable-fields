@@ -45,9 +45,11 @@ trait HasDefaultableActionFields
      * Provide the ability to refresh the index page when an action is run,
      * so that the action fields' default values can be repopulated.
      *
+     * @param array|null $action
+     *
      * @return array|null
      */
-    protected function refreshIndex()
+    protected function refreshIndex($action = null)
     {
         if (!$this instanceof ShouldQueue) {
             $request = app(ActionRequest::class);
@@ -59,5 +61,7 @@ trait HasDefaultableActionFields
                 return Action::redirect($referrer);
             }
         }
+
+        return $action;
     }
 }
