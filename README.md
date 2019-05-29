@@ -1,5 +1,5 @@
 # Laravel Nova Defaultable Fields
-Populate default values for Nova fields when creating resources and on resource actions.
+Populate default values for Nova fields when creating resources and **now supports resource actions!**
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/inspheric/nova-defaultable.svg?style=flat-square)](https://packagist.org/packages/inspheric/nova-defaultable)
 [![Total Downloads](https://img.shields.io/packagist/dt/inspheric/nova-defaultable.svg?style=flat-square)](https://packagist.org/packages/inspheric/nova-defaultable)
@@ -181,7 +181,9 @@ class YourAction extends Action
 }
 ```
 
-When the action is run from the index view, it will return a redirect response to refresh the whole page. It has no effect if the action is run from the detail view, because the "Select Action" dropdown is refreshed each time automatically.
+When the action is run from the index view, it will return a redirect response to refresh the whole page. It has no effect if the action is run from the detail view, because Nova refreshes the page after each action automatically.
+
+> :confounded: I don't really like this workaround but can't think of an alternative. I would be happy to hear other ideas.
 
 *Note:* If `$refreshIndex = true`, and you return your own [action response](https://nova.laravel.com/docs/2.0/actions/defining-actions.html#action-responses) from the action's `handle()` method, it will be ignored on the index view because it is overridden by the redirect response.
 
