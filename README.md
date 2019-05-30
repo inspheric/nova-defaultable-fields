@@ -136,7 +136,7 @@ To use the `default()` method on a Nova `MorphTo` field, you can supply either:
 * An instance of a Nova Resource, e.g.
 
     ```php
-    // $postResource = new App\Nova\Post(App\Post::find(1));
+    // $postResource = Nova::newResourceFromModel(App\Post::find(1));
 
     MorphTo::make('Commentable')
         ->types(...)
