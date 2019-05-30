@@ -48,7 +48,7 @@ This package plugs into existing fields and provides two simple methods to suppl
 
 ### Default any value
 
-Use the `default()` method on any standard Nova field to populate a simple value, e.g.
+Use the `default($value)` method on any standard Nova field to populate a simple value, e.g.
 
 ```php
 Text::make('Name')
@@ -181,15 +181,15 @@ class YourAction extends Action
 }
 ```
 
-When the action is run from the index view, it will return a redirect response to refresh the whole page. It has no effect if the action is run from the detail view, because Nova refreshes the page after each action automatically.
+When the action is run from the index view, it will return a redirect response to refresh the whole page. It has no effect if the action is run from the detail view, because Nova already refreshes the page after each action automatically.
 
 > :confounded: I don't really like this workaround but can't think of an alternative. I would be happy to hear other ideas.
 
-*Note:* If `$refreshIndex = true`, and you return your own [action response](https://nova.laravel.com/docs/2.0/actions/defining-actions.html#action-responses) from the action's `handle()` method, it will be ignored on the index view because it is overridden by the redirect response.
+*Note:* If you set `$refreshIndex = true`, and you return your own [action response](https://nova.laravel.com/docs/2.0/actions/defining-actions.html#action-responses) from the action's `handle()` method, it will be ignored on the index view because it is overridden by the redirect response. It will behave as normal on the detail view.
 
 ### Display using a callback
 
-Both the `default()` and `defaultLast()` methods can take a callback as the final parameter which will transform the defaulted value (whether retrieved from cache or from the `default()` method) before it is populated, e.g.
+Both the `default($value, callable $callback = null)` and `defaultLast(callable $callback = null)` methods can take a callback as the final parameter which will transform the defaulted value (whether retrieved from cache or passed to the `default()` method) before it is populated, e.g.
 
 ```php
 $lastInvoiceNumber = auth()->user()->last_invoice_number;
@@ -246,7 +246,7 @@ DefaultableField::extend(YourField::class, function($field, $value) {
 });
 ```
 
-*Note:* If you are using `extend()` as above, the basic defaulting functionality of this package is completely overridden, so you must ensure that your own callback sets the field's value correctly. This is usually done by setting the `'value'` meta key, but your field may differ, or may need additional meta keys to be set (such as `'belongsToId'` in the case of a `BelongsTo` field).
+*Note:* If you are using `extend()` as above, the basic defaulting functionality of this package is *completely* overridden, so you must ensure that your own callback sets the field's value correctly. This is usually done by setting the `'value'` meta key, but your field may differ, or may need additional meta keys to be set (such as `'belongsToId'` in the case of a `BelongsTo` field).
 
 You can pass an array of field types as the first argument to use the same callback on all of them, i.e.
 
