@@ -1,11 +1,17 @@
 {
     "name": "inspheric/nova-defaultable",
-    "description": "Default values for Nova fields when creating resources.",
+    "description": "Default values for Nova fields when creating resources and running resource actions.",
     "keywords": [
         "laravel",
         "nova",
         "field",
-        "default"
+        "default",
+        "prepopulate",
+        "default value",
+        "cache",
+        "action",
+        "create",
+        "update"
     ],
     "license": "MIT",
     "require": {
