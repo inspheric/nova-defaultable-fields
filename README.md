@@ -269,7 +269,10 @@ DefaultableField::extend(YourOtherField::class, 'handleYourField');
 
 ## Configuration
 
-The configuration can be published using `php artisan vendor:publish --provider="Inspheric\NovaDefaultable\DefaultableServiceProvider" --tag="config"`.
+The configuration can be published using:
+```bash
+php artisan vendor:publish --provider="Inspheric\NovaDefaultable\DefaultableServiceProvider" --tag="config"
+```
 
 The configuration file contains two keys:
 * `cache.key` - The key to use to store the "last" values in the cache. Defaults to 'default_last' and will be prepended to the authenticated user ID, resource class and field attribute for uniqueness.
