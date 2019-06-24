@@ -171,7 +171,7 @@ BelongsTo::make('Author')
 
 *Note:* The `defaultLast()` method handles the morph type for `MorphTo` fields automatically.
 
-*Note:* Because the "Select Action" dropdown is not refreshed after an action is run on the index view, `defaultLast()` cannot repopulate each last value if you run the action several times while on the same index view. If you need the value to be repopulated every time on the index view, you can set the property `$refreshIndex = true` on the action class, e.g.
+*Note:* Because the list of available actions (the "Select Action" dropdown) is not refreshed after an action is run on the index view, `defaultLast()` cannot repopulate each last value if you run the action several times while on the same index view. If you need the value to be repopulated every time on the index view, you can set the property `$refreshIndex = true` on your action class, e.g.
 
 ```php
 class YourAction extends Action
@@ -185,11 +185,11 @@ class YourAction extends Action
 }
 ```
 
-When the action is run from the index view, it will return a redirect response to refresh the whole page. It has no effect if the action is run from the detail view, because Nova already refreshes the page after each action automatically.
+When the action is run from the index view, it will return a redirect response to refresh the whole page. It has no effect if the action is run from the detail view, because Nova already refreshes the detail page after each action automatically.
 
-> :confounded: I don't really like this workaround but can't think of an alternative. I would be happy to hear other ideas.
+> :confounded: I really don't like this workaround but can't think of an alternative. [I would be happy to hear other ideas](/inspheric/nova-defaultable-fields/issues/7) that could work without needing to modify Nova core.
 
-*Note:* If you set `$refreshIndex = true`, and you return your own [action response](https://nova.laravel.com/docs/2.0/actions/defining-actions.html#action-responses) from the action's `handle()` method, **your response will be ignored on the index view** because it is overridden by the redirect response. It will behave as normal on the detail view.
+*Note:* If you set `$refreshIndex = true` *and* you return your own [action response](https://nova.laravel.com/docs/2.0/actions/defining-actions.html#action-responses) from the action's `handle()` method, **your response will be ignored on the index view** because it is overridden by the redirect response. (It will behave as expected on the detail view.) If you must have your own action response, you should **not** use `$refreshIndex = true`. Unfortunately, this means that you cannot use `message()`, `danger()` or `download()` along with full `defaultLast()` functionality. If you use your own `redirect()` the user will be redirected away from the page anyway, so there will be no issues.
 
 ### Display using a callback
 
