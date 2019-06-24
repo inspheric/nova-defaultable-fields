@@ -12,7 +12,8 @@ Install the package into a Laravel app that uses [Nova](https://nova.laravel.com
 composer require inspheric/nova-defaultable
 ```
 
-(Optional) If you want to use the `defaultLast()` method when creating resources ([see below](#default-the-last-saved-value)), you need to add the trait `Inspheric\NovaDefaultable\HasDefaultableFields` to your base Resource class (located at `app\Nova\Resource.php`):
+### Trait for "Default Last" on Resources
+**(Optional)** If you want to use the `defaultLast()` method when creating resources ([see below](#default-the-last-saved-value)), you **must** add the trait `Inspheric\NovaDefaultable\HasDefaultableFields` to your base Resource class (located at `app\Nova\Resource.php`):
 
 ```php
 use Inspheric\NovaDefaultable\HasDefaultableFields;
@@ -25,7 +26,8 @@ abstract class Resource extends NovaResource
 }
 ```
 
-(Optional) If you want to use the `defaultLast()` method on resource actions, you need to add the trait `Inspheric\NovaDefaultable\HasDefaultableActionFields` to **every** Action class (located at `app\Nova\Actions\`, one by one) that you wish to use defaultable fields on:
+### Trait for "Default Last" on Resource Actions
+**(Optional)** If you want to use the `defaultLast()` method on resource actions, you **must** add the trait `Inspheric\NovaDefaultable\HasDefaultableActionFields` to **every** Action class (located at `app\Nova\Actions\`, one by one) that you wish to use defaultable fields on:
 
 ```php
 use Inspheric\NovaDefaultable\HasDefaultableActionFields;
@@ -165,6 +167,8 @@ BelongsTo::make('Author')
     ->defaultLast(),
 ```
 
+*Note:* Ensure you have added the appropriate trait to either your [base resource](#trait-for-default-last-on-resources) and/or [actions](#trait-for-default-last-on-resource-actions) before using `defaultLast()`.
+
 *Note:* The `defaultLast()` method handles the morph type for `MorphTo` fields automatically.
 
 *Note:* Because the "Select Action" dropdown is not refreshed after an action is run on the index view, `defaultLast()` cannot repopulate each last value if you run the action several times while on the same index view. If you need the value to be repopulated every time on the index view, you can set the property `$refreshIndex = true` on the action class, e.g.
@@ -185,7 +189,7 @@ When the action is run from the index view, it will return a redirect response t
 
 > :confounded: I don't really like this workaround but can't think of an alternative. I would be happy to hear other ideas.
 
-*Note:* If you set `$refreshIndex = true`, and you return your own [action response](https://nova.laravel.com/docs/2.0/actions/defining-actions.html#action-responses) from the action's `handle()` method, it will be ignored on the index view because it is overridden by the redirect response. It will behave as normal on the detail view.
+*Note:* If you set `$refreshIndex = true`, and you return your own [action response](https://nova.laravel.com/docs/2.0/actions/defining-actions.html#action-responses) from the action's `handle()` method, **your response will be ignored on the index view** because it is overridden by the redirect response. It will behave as normal on the detail view.
 
 ### Display using a callback
 
