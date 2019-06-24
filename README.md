@@ -94,7 +94,7 @@ To use the `default()` method on a Nova `BelongsTo` field, you can supply either
         ->default($id),
     ```
     
-    *Note:* This is a convenience only and should not be relied upon for enforcing that an author can only edit their own posts, etc.
+*Note:* This is a convenience only and should not be relied upon for enforcing that an author can only edit their own posts, etc.
 
 #### Default a MorphTo field
 
