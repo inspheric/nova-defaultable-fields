@@ -21,9 +21,9 @@ trait HasDefaultableActionFields
      */
     public function handleResult(ActionFields $fields, $results)
     {
-        collect($this->fields())->filter(function ($field) {
+        collect($this->fields())->filter(function($field) {
             return $field->meta['defaultLast'] ?? false;
-        })->each(function ($field) use ($fields) {
+        })->each(function($field) use ($fields) {
             $field->withMeta(['value' => $fields->{$field->attribute}]);
             $request = app(NovaRequest::class);
 

@@ -17,9 +17,9 @@ trait HasDefaultableFields
      */
     protected static function fillFields(NovaRequest $request, $model, $fields)
     {
-        $fields->filter(function ($field) {
+        $fields->filter(function($field) {
             return $field->meta['defaultLast'] ?? false;
-        })->each(function ($field) use ($request) {
+        })->each(function($field) use ($request) {
             DefaultableField::cacheLastValue($request, $field);
         });
 
