@@ -17,6 +17,9 @@
     "require": {
         "php": ">=7.1.0"
     },
+    "conflict": {
+        "laravel/nova": "<3.4.0"
+    },
     "autoload": {
         "psr-4": {
             "Inspheric\\NovaDefaultable\\": "src/"
