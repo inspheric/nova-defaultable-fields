@@ -8,6 +8,8 @@ Populate default values for Nova fields when creating resources and **now suppor
 
 Install the package into a Laravel app that uses [Nova](https://nova.laravel.com) with Composer:
 
+**Note: This package is currently incompatible with Nova version 3.4.0 and above.**
+
 ```bash
 composer require inspheric/nova-defaultable
 ```
