@@ -22,11 +22,13 @@ class DefaultableServiceProvider extends ServiceProvider
             __DIR__.'/../config/defaultable_field.php', 'defaultable_field'
         );
 
-        Field::macro('default', function($value, callable $callback = null) {
+        Field::macro('defaultUsing', function($value, callable $callback = null) {
+            /** @var Field $this */
             return DefaultableField::default($this, $value, $callback);
         });
 
         Field::macro('defaultLast', function(callable $callback = null) {
+            /** @var Field $this */
             return DefaultableField::defaultLast($this, $callback);
         });
     }
