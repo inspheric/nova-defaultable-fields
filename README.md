@@ -280,6 +280,3 @@ The configuration file contains two keys:
 * `cache.key` - The key to use to store the "last" values in the cache. Defaults to 'default_last' and will be prepended to the authenticated user ID, resource class and field attribute for uniqueness.
 * `cache.ttl` - The time to store the last values in the cache, in seconds. Defaults to one hour (60 * 60).
 
-## Donate
-
-💜 If you like this package, you can show your appreciation by [donating any amount via PayPal](https://burtonsenior.com/donate/inspheric/nova-defaultable) to support ongoing development.
